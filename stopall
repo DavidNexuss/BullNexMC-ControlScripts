@@ -1,0 +1,8 @@
+#!/bin/bash
+
+
+heroku ps:scale web=0 -a bullnexmc0
+heroku ps:scale web=0 -a bullnexmc
+heroku ps:scale web=0 -a bullnexmc2
+heroku ps:scale web=0 -a bullnexmc3
+heroku ps:scale web=0 -a bullnexmc-lobby

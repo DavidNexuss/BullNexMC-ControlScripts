@@ -1,0 +1,3 @@
+#!/bin/bash
+
+eval 'cd ~/Projects/bullnexmc-lobby/;git commit -m "upgrade" --allow-empty;git push'

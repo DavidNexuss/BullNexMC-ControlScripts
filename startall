@@ -1,0 +1,18 @@
+#!/bin/bash
+
+HOST=remotemysql.com
+DBNAME=BqlOcNnU0u
+PASSWD=DnrwMEbjYs
+USER=BqlOcNnU0u
+PORT=3306
+
+QUERY="DELETE FROM servers"
+
+mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME
+
+heroku ps:scale web=1 -a bullnexmc0
+heroku ps:scale web=1 -a bullnexmc
+heroku ps:scale web=1 -a bullnexmc2
+heroku ps:scale web=1 -a bullnexmc3
+heroku ps:scale web=1 -a bullnexmc4
+
