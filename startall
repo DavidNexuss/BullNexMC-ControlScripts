@@ -15,4 +15,5 @@ heroku ps:scale web=1 -a bullnexmc
 heroku ps:scale web=1 -a bullnexmc2
 heroku ps:scale web=1 -a bullnexmc3
 heroku ps:scale web=1 -a bullnexmc4
+heroku ps:scale web=1 -a bullnexmc5
 
