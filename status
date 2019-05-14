@@ -1,0 +1,17 @@
+#!/bin/bash
+
+for i in {0..6}
+do
+	if (( $i == 1));
+	then
+		STATUS=$(heroku ps -a bullnexmc | grep "web.1")
+	else
+		STATUS=$(heroku ps -a bullnexmc$i | grep "web.1")	
+	fi
+	
+	if [[ -z "$STATUS" ]]; then
+		STATUS="Stopped"
+	fi
+
+	echo $i $STATUS
+done

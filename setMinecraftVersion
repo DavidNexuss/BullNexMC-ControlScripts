@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [[ -z "$1" ]]; then
+	VER=$(cat defaultVersion)
+else
+	VER=$1
+fi
+
+URL="https://papermc.io/ci/job/$VER/lastSuccessfulBuild/artifact/paperclip.jar"
+
+for i in {0..6}
+do
+	if (( $i == 1)); then
+		heroku config:set PAPER="$URL" -a bullnexmc &
+		heroku config:set MINECRAFT_VERSION="$VER" -a bullnexmc 
+	else
+
+		heroku config:set PAPER="$URL" -a bullnexmc$i & 
+		heroku config:set MINECRAFT_VERSION="$VER" -a bullnexmc$i
+	fi
+done
