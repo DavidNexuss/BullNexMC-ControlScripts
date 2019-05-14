@@ -1,2 +1,2 @@
 #!/bin/bash
-curl http://bullnexmc-lobby.herokuapp.com
+curl -s http://bullnexmc-lobby.herokuapp.com | grep ":"
