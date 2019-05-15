@@ -1,0 +1,28 @@
+#!/bin/bash
+
+HOST=remotemysql.com
+DBNAME=BqlOcNnU0u
+PASSWD=DnrwMEbjYs
+USER=BqlOcNnU0u
+PORT=3306
+
+QUERY="SELECT * FROM servers"
+
+COUNT=$(cat server_count)
+DB_COUNT=0
+OLD=$DB_COUNT
+
+echo "Comprobando que en la base de datos haya $COUNT servidores..."
+
+while ((DB_COUNT != COUNT))
+do
+
+	DB_COUNT=$(mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME | sed '1d' | wc -l)
+#	echo $DB_COUNT $COUNT
+	if ((OLD != DB_COUNT))
+		OLD=$DB_COUNT
+		echo "$DB_COUNT / $COUNT"
+	fi
+done
+echo "Todos los servidores estan iniciados."
+

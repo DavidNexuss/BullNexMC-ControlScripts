@@ -1,7 +1,7 @@
 #!/bin/bash
+check(){
 
-for i in {0..6}
-do
+	i=$1
 	if (( $i == 1));
 	then
 		STATUS=$(heroku ps -a bullnexmc | grep "web.1")
@@ -14,4 +14,18 @@ do
 	fi
 
 	echo $i $STATUS
+	echo "$(($(cat .count) + 1))" > .count
+}
+
+
+for i in {0..6}
+do
+	check $i &
 done
+echo "0" > .count
+while (($(cat .count) < $(cat server_count)))
+do
+#	echo "$(cat .count)"
+	sleep 1s
+done
+rm count

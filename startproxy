@@ -1,2 +1,5 @@
-#!/bin/bash 
+#!/bin/bash
+echo "Iniciando proxy..."
 heroku ps:scale web=1 -a bullnexmc-lobby
+bash ip
+echo "Servidor iniciado!"

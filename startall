@@ -8,7 +8,11 @@ PORT=3306
 
 QUERY="DELETE FROM servers"
 
+echo "Inicando procedimiento para iniciar BullNexMC... ($(cat defaultVersion))"
+echo "Borrando ips antiguas de la base de datos..."
 mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME
+
+echo "Iniciando servidores..."
 
 heroku ps:scale web=1 -a bullnexmc0
 heroku ps:scale web=1 -a bullnexmc
@@ -18,3 +22,7 @@ heroku ps:scale web=1 -a bullnexmc4
 heroku ps:scale web=1 -a bullnexmc5
 heroku ps:scale web=1 -a bullnexmc6
 
+echo "Esperando a los servidores para iniciar el proxy..."
+
+bash DB_server_count
+bash startproxy
