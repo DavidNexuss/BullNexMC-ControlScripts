@@ -12,7 +12,7 @@ echo "Inicando procedimiento para iniciar BullNexMC... ($(cat defaultVersion))"
 echo "Borrando ips antiguas de la base de datos..."
 mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME
 
-echo "Iniciando servidores..."
+echo "Iniciando servidores... $(cat server_count)"
 
 heroku ps:scale web=1 -a bullnexmc0
 heroku ps:scale web=1 -a bullnexmc
