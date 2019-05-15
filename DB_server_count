@@ -14,15 +14,18 @@ OLD=$DB_COUNT
 
 echo "Comprobando que en la base de datos haya $COUNT servidores..."
 
-while ((DB_COUNT != COUNT))
+while (($DB_COUNT != $COUNT))
 do
 
 	DB_COUNT=$(mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME | sed '1d' | wc -l)
 #	echo $DB_COUNT $COUNT
-	if ((OLD != DB_COUNT))
+
+	if (($OLD != $DB_COUNT)); then
 		OLD=$DB_COUNT
 		echo "$DB_COUNT / $COUNT"
 	fi
+
 done
+
 echo "Todos los servidores estan iniciados."
 
