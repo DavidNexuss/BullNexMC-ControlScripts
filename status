@@ -6,9 +6,9 @@ do
 	then
 		STATUS=$(heroku ps -a bullnexmc | grep "web.1")
 	else
-		STATUS=$(heroku ps -a bullnexmc$i | grep "web.1")	
+		STATUS=$(heroku config:get SERVER_NAME -a bullnexmc$i)$(heroku ps -a bullnexmc$i | grep "web.1")
 	fi
-	
+
 	if [[ -z "$STATUS" ]]; then
 		STATUS="Stopped"
 	fi
