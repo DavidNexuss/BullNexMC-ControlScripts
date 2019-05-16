@@ -16,6 +16,6 @@ commit=${commit##*<pre>}
 commit=${commit%(<a*}
 commit=$(echo "$commit" | sed 's/<[^>]*>/\n/g')
 
-printf "Última version de ${GREEN}$branch${NC} es la ${GREEN}#$version${NC} \n"
+printf "Última version de ${GREEN}$branch${NC} es la ${GREEN}#$version${NC}, status de la build: ${GREEN}$(curl -s "https://papermc.io/ci/buildStatus/text?job=Paper-1.13")${NC} \n"
 echo "Comentario del desarrolador: $Log"
 echo "$commit"
