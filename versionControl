@@ -1,0 +1,21 @@
+#!/bin/sh
+
+GREEN='\033[1;34m'
+NC='\033[0m'
+
+branch=$(cat defaultVersion)
+file=$(curl -s https://papermc.io/ci/job/$branch/changes)
+version=$(echo "$file" | grep 'h2' | head -1 | cut -d '#' -f 2)
+
+log=$(echo "$file" | grep 'h2' | head -2)
+log=${log##*li>}
+log=${log%(<a*}
+
+commit=$(curl -s https://papermc.io/ci/job/$branch/$version/changes | grep '<pre>')
+commit=${commit##*<pre>}
+commit=${commit%(<a*}
+commit=$(echo "$commit" | sed 's/<[^>]*>/\n/g')
+
+printf "Última version de ${GREEN}$branch${NC} es la ${GREEN}#$version${NC} \n"
+echo "Comentario del desarrolador: $Log"
+echo "$commit"

@@ -8,6 +8,8 @@ PORT=3306
 
 QUERY="DELETE FROM servers"
 
+echo "Comprobando la última información del desarrollo de PaperMC..."
+bash versionControl
 echo "Inicando procedimiento para iniciar BullNexMC... ($(cat defaultVersion))"
 echo "Borrando ips antiguas de la base de datos..."
 mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME
