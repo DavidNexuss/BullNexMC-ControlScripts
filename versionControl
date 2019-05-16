@@ -1,6 +1,7 @@
 #!/bin/sh
 
 GREEN='\033[1;34m'
+RED='\033[1;31m'
 NC='\033[0m'
 
 branch=$(cat defaultVersion)
@@ -17,5 +18,6 @@ commit=${commit%(<a*}
 commit=$(echo "$commit" | sed 's/<[^>]*>/\n/g')
 
 printf "Última version de ${GREEN}$branch${NC} es la ${GREEN}#$version${NC}, status de la build: ${GREEN}$(curl -s "https://papermc.io/ci/buildStatus/text?job=Paper-1.13")${NC} \n"
-echo "Comentario del desarrolador: $Log"
+printf "Comentario del desarrolador: ${RED}$log${NC}\n"
+echo ""
 echo "$commit"

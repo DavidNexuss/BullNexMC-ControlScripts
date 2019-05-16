@@ -7,13 +7,22 @@ USER=BqlOcNnU0u
 PORT=3306
 
 QUERY="DELETE FROM servers"
+SEPARATOR="---------------------------------------------------------"
 
+echo "Script para iniciar BullNexMC"
+echo "Hecho por los admins de BullNexMC y para los admins de BullNexMC"
+echo "$SEPARATOR"
+echo "Comprobando integridad de la plataforma de heroku..."
+heroku status
+echo "$SEPARATOR"
 echo "Comprobando la última información del desarrollo de PaperMC..."
 bash versionControl
+echo "$SEPARATOR"
 echo "Inicando procedimiento para iniciar BullNexMC... ($(cat defaultVersion))"
 echo "Borrando ips antiguas de la base de datos..."
 mycli -e "$QUERY" -h $HOST -P $PORT -u $USER -p $PASSWD $DBNAME
 
+echo "$SEPARATOR"
 echo "Iniciando servidores... $(cat server_count)"
 
 heroku ps:scale web=1 -a bullnexmc0
@@ -24,7 +33,9 @@ heroku ps:scale web=1 -a bullnexmc4
 heroku ps:scale web=1 -a bullnexmc5
 heroku ps:scale web=1 -a bullnexmc6
 
+echo "$SEPARATOR"
 echo "Esperando a los servidores para iniciar el proxy..."
-
 bash DB_server_count
 bash startproxy
+echo "$SEPARATOR"
+echo "BullNexMC iniciado"
