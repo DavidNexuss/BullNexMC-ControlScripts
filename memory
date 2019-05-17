@@ -3,17 +3,16 @@
 servers=$(cat server_count)
 check(){
 
-	if (( $1 == 1)); then
-		log=$(heroku logs -a bullnexmc | grep "mem=" | tail -n1)
-		name=$(heroku config:get SERVER_NAME -a bullnexmc)
-	else
-		log=$(heroku logs -a bullnexmc$i | grep "mem=" | tail -n1)
-		name=$(heroku config:get SERVER_NAME -a bullnexmc$1)
+	i=$1
+	if (( $i == 1)); then
+
+		i=""
 	fi
 
+	log=$(heroku logs -a bullnexmc$i | grep "mem=" | tail -n1)
 	log=${log##*mem=}
 	log=${log%)*}
-	echo "$i $name $log)" >> .data
+	echo "bullnexmc$i $log)" >> .data
 	echo "$(($(cat .count) + 1))" > .count
 }
 
