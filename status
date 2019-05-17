@@ -4,16 +4,16 @@ check(){
 	i=$1
 	if (( $i == 1));
 	then
-		STATUS=$(heroku config:get SERVER_NAME -a bullnexmc) $(heroku ps -a bullnexmc | grep "web.1")
+		STATUS="$(heroku config:get SERVER_NAME -a bullnexmc) $(heroku ps -a bullnexmc | grep "web.1")"
 	else
-		STATUS=$(heroku config:get SERVER_NAME -a bullnexmc$i) $(heroku ps -a bullnexmc$i | grep "web.1")
+		STATUS="$(heroku config:get SERVER_NAME -a bullnexmc$i) $(heroku ps -a bullnexmc$i | grep "web.1")"
 	fi
 
-	echo $i $STATUS
+	echo "$i $STATUS" >> .data
 	echo "$(($(cat .count) + 1))" > .count
 }
 
-
+[[ -f .data ]] && rm .data
 for i in {0..6}
 do
 	check $i &
@@ -25,3 +25,6 @@ do
 	sleep 1s
 done
 rm .count
+
+column -t -s ' ' .data
+rm .data
