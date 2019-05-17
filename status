@@ -4,13 +4,9 @@ check(){
 	i=$1
 	if (( $i == 1));
 	then
-		STATUS=$(heroku ps -a bullnexmc | grep "web.1")
+		STATUS=$(heroku config:get SERVER_NAME -a bullnexmc) $(heroku ps -a bullnexmc | grep "web.1")
 	else
-		STATUS=$(heroku config:get SERVER_NAME -a bullnexmc$i)$(heroku ps -a bullnexmc$i | grep "web.1")
-	fi
-
-	if [[ -z "$STATUS" ]]; then
-		STATUS="Stopped"
+		STATUS=$(heroku config:get SERVER_NAME -a bullnexmc$i) $(heroku ps -a bullnexmc$i | grep "web.1")
 	fi
 
 	echo $i $STATUS
