@@ -1,0 +1,36 @@
+#!/bin/bash
+
+
+server_count=$(cat server_count)
+
+check(){
+
+	if (($1 == 1)); then
+		i=""
+	fi
+
+	file_count=$(./dropbox_uploader.sh list Aplicaciones/bullnexmc$i | tail +2 | wc -l)
+
+	if (($file_count < 1)); then
+
+
+		echo "bullnexmc$i No tiene backup.zip !!"
+	else
+		size=$(./dropbox_uploader.sh list Aplicaciones/bullnexmc$i | tail -n +2 | awk '{print $2}')
+		size=$(($size / 1024 / 1024))
+
+		echo "bullnex$i $size MB"
+	fi
+	echo $(($(cat .count) + 1 )) > .count
+}
+
+echo "0" > .count
+for i in {0..6}
+do
+	check $i &
+done
+
+while (($server_count > $(cat .count)))
+do
+	sleep 1s
+done
