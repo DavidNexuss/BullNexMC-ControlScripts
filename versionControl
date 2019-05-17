@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 GREEN='\033[1;34m'
 RED='\033[1;31m'
 NC='\033[0m'
 
 branch=$(cat defaultVersion)
+[[ ! -z "$1" ]] && branch="$1"
 file=$(curl -s https://papermc.io/ci/job/$branch/changes)
 version=$(echo "$file" | grep 'h2' | head -1 | cut -d '#' -f 2)
 

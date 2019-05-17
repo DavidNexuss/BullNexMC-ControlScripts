@@ -28,4 +28,4 @@ do
 #	echo "$(cat .count)"
 	sleep 1s
 done
-rm count
+rm .count
