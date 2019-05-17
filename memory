@@ -18,7 +18,7 @@ check(){
 }
 
 echo "0" > .count
-[ ! -f .data ] && rm .data
+[ -f .data ] && rm .data
 for i in {0..6}
 do
 	check $i &
@@ -28,3 +28,5 @@ while (($servers > $(cat .count)))
 do
 	sleep 1s
 done
+
+column -t -s ' ' .data
