@@ -1,0 +1,8 @@
+#!/bin/bash
+
+[[ -f .log ]] && rm .log
+./status >> .log
+echo "1/3"
+./memory >> .log
+echo "2/3"
+./backup_check >> .log

@@ -11,6 +11,17 @@ SEPARATOR="---------------------------------------------------------"
 
 echo "Script para iniciar BullNexMC"
 echo "Hecho por los admins de BullNexMC y para los admins de BullNexMC"
+
+echo "$SEPARATOR"
+echo "Comprobando la integridad de los backups de los servidores ($(cat server_count))"
+log=$(./backup_check | column -t -s ' ')
+echo "$log"
+if [[ $(echo "$log" | grep 'No') ]]; then
+	echo "Error, no todos los servidores tienen backup!"
+	exit 1
+else
+	echo "Correcto!, todos los servidores tienen backup"
+fi
 echo "$SEPARATOR"
 echo "Comprobando integridad de la plataforma de heroku..."
 heroku status
