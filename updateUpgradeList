@@ -1,0 +1,9 @@
+#!/bin/sh
+eval "cd ~/Projects/bullnexmc0; git pull --all" &
+eval "cd ~/Projects/bullnexmc; git pull --all" &
+eval "cd ~/Projects/bullnexmc2; git pull --all" &
+eval "cd ~/Projects/bullnexmc3; git pull --all" &
+eval "cd ~/Projects/bullnexmc4; git pull --all" &
+eval "cd ~/Projects/bullnexmc5; git pull --all" &
+eval "cd ~/Projects/bullnexmc6; git pull --all" &
+eval "cd ~/Projects/bullnexmc7; git pull --all"
