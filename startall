@@ -35,6 +35,7 @@ heroku ps:scale web=1 -a bullnexmc3
 heroku ps:scale web=1 -a bullnexmc4
 heroku ps:scale web=1 -a bullnexmc5
 heroku ps:scale web=1 -a bullnexmc6
+heroku ps:scale web=1 -a bullnexmc7
 
 echo "$SEPARATOR"
 echo "Esperando a los servidores para iniciar el proxy..."

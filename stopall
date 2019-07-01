@@ -8,4 +8,5 @@ heroku ps:scale web=0 -a bullnexmc3
 heroku ps:scale web=0 -a bullnexmc4
 heroku ps:scale web=0 -a bullnexmc5
 heroku ps:scale web=0 -a bullnexmc6
+heroku ps:scale web=0 -a bullnexmc7
 heroku ps:scale web=0 -a bullnexmc-lobby
