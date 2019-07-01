@@ -25,7 +25,7 @@ check(){
 }
 
 echo "0" > .count
-for i in {0..6}
+for i in {0..7}
 do
 	check $i &
 done
