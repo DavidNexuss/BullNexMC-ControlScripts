@@ -1,4 +1,5 @@
 dropbox_uploader.sh
+/tmp
 .data
 .count
 *.save
