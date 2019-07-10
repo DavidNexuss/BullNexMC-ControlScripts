@@ -18,7 +18,7 @@ check(){
 
 echo "0" > .count
 [[ -f .data ]] && rm .data
-for i in {0..7}
+for i in {0..8}
 do
 	check $i &
 done

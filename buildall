@@ -7,4 +7,5 @@ eval 'cd ~/Projects/bullnexmc3; git commit -m "upgrade" --allow-empty; git push'
 eval 'cd ~/Projects/bullnexmc4; git commit -m "upgrade" --allow-empty; git push'&
 eval 'cd ~/Projects/bullnexmc5; git commit -m "upgrade" --allow-empty; git push'&
 eval 'cd ~/Projects/bullnexmc6; git commit -m "upgrade" --allow-empty; git push'&
-eval 'cd ~/Projects/bullnexmc7; git commit -m "upgrade" --allow-empty; git push'
+eval 'cd ~/Projects/bullnexmc7; git commit -m "upgrade" --allow-empty; git push'&
+eval 'cd ~/Projects/bullnexmc8; git commit -m "upgrade" --allow-empty; git push'

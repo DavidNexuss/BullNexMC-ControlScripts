@@ -8,7 +8,7 @@ fi
 
 URL="https://papermc.io/ci/job/$VER/lastSuccessfulBuild/artifact/paperclip.jar"
 
-for i in {0..7}
+for i in {0..8}
 do
 	if (( $i == 1)); then
 		heroku config:set PAPER="$URL" -a bullnexmc &
