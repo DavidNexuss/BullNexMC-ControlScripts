@@ -1,0 +1,26 @@
+[
+  {
+    "uuid": "b7afaf27-2b5a-3348-af36-dd9be6c308a3",
+    "name": "CONSOLA",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  },
+  {
+    "uuid": "f78a4d8d-d51b-4b39-98a3-230f2de0c670",
+    "name": "CONSOLE",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  },
+  {
+    "uuid": "34e0a659-c68d-35ad-bc0a-fc5378e6b5b9",
+    "name": "CONSOLE",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  },
+  {
+    "uuid": "5b8e9786-77d3-3910-87b3-c92e16884674",
+    "name": "davidnexus",
+    "level": 4,
+    "bypassesPlayerLimit": false
+  }
+]

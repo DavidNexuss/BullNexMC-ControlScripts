@@ -1,0 +1,239 @@
+#!/bin/bash
+SLAVES=$(cat slave_dynos)
+SLAVE_COUNT=$(cat slave_dynos | wc -l)
+APPS=$(cat apps)
+
+MASTER="bullnexmc-lobby"
+CURRENT="bullnexmc"
+
+GREEN='\033[1;34m'
+RED='\033[1;31m'
+NC='\033[0m'
+
+SQLHOST=remotemysql.com
+SQLDBNAME=dnlcatZsZQ
+SQLPASSWD=R4DkDMYmbg
+SQLUSER=dnlcatZsZQ
+
+USER=$(cat user)
+DIR=$(pwd)
+PLUGIN="/home/david/Projects/BullNexMC-Plugin/"
+PLUGIN_FILE="$PLUGIN/target/BullNexMC-1.0.jar"
+DROPBOX_HOME="/home/david/Dropbox/"
+
+function admin {
+	[[ "$USER" -eq "david" ]]
+}
+function compileError { 
+	echo "There was a compile error! see stacktrace"
+}
+function plugInstall { #User compile and deploy spigot plugin
+	admin && {
+		cd "$PLUGIN"
+		echo "Compiling plugin..."
+		mvn > stacktrace && {
+			echo "Copying jar..."
+			cd "$DIR"
+			cp $PLUGIN_FILE $DROPBOX_HOME
+			cp $PLUGIN_FILE defSlave/plugins/
+			echo "New version copied, no errors reported"
+		} || compileError
+	} 
+}
+function user {
+	echo "$USER"
+}
+#---------------------------COMMAND-OVERRIDE--------------------------
+OVERRIDE=1
+
+function ls { lsd; }  
+function block {
+	for i in $(jobs -p); do
+		wait $i
+	done
+}
+#---------------------------HEROKU------------------------------------
+function stop { #bn Stops server cluster
+	for i in $APPS; do {
+		heroku ps:scale web=0 -a $i
+	}&
+	done
+	block
+	echo "All servers stopped"
+}
+function start { #bn Starts server cluster
+
+	printf "${GREEN}-->Phase 1: Checking...${NC}\n"
+	echo "->Checking dropbox backups..."
+	for i in $SLAVES; do {
+		backup_check $i || {
+			
+			printf "${RED}A server does not have dropbox backup! ${NC}\n"
+			exit 1
+		}
+	} &
+	done
+	block
+
+	printf "${GREEN}-->Phase 2: Initializing server...${NC}\n"
+	echo "->Deleting all databse server ip table..."
+	sqlquery "DELETE FROM servers"
+	
+	echo "->Starting server cluster..."
+	
+	for i in $SLAVES; do {
+		heroku ps:scale web=1 -a $i > /dev/null
+	} &
+	done
+
+	echo "->Waiting for all servers to start..."
+	block
+	echo "->All servers started..."
+
+	echo "->Waiting for servers in server table..."
+
+}
+function backup_check {
+	count=$(./backup_check list Aplicaciones/$1 | tail +2 | wc -l)
+
+	 if (($count < 1)); then
+		printf "${RED}$1 no tiene backup!${NC}\n"
+		exit 1
+	else
+		size=$(./dropbox_uploader.sh list Aplicaciones/$1 | tail -n +2 | awk '{print $2}')
+		size=$((size / 1024 / 1024))
+		
+		printf "$1 ${GREEN} $size MB ${NC}\n"
+	 fi
+}
+function status { #bn prints status of given server
+	[[ -z "$1" ]] && 1=$($CURRENT)
+	VAL=$(heroku ps -a $1 | grep 'No dynos')
+	[[ -z "$VAL" ]] && {
+		[[ ! -z "$2" ]] && echo "$GREEN" || echo "up"
+	} || {
+		[[ ! -z "$2" ]] && echo "$RED" || echo "down"
+	}
+}
+function mem { #bn prints mem used
+	for i in $APPS; do (
+		 
+		INF=$(heroku logs -a $i | grep 'mem=' | head -1 | sed 's/^.*mem=//g')  
+		STAT=$(status $i awd)
+		printf "${STAT} $i ${NC}"
+		echo "$INF"
+	) &
+	done
+	block
+}
+function memtable { #bn prints mem in table
+	mem | column -t
+
+}
+function bnconfall { #bn executes config with pattern matching in all
+	
+	for i in $APPS; do
+		{
+			INF=$(heroku config -a $i | grep $1)
+			echo "$i: $INF"
+		} &
+	done
+}
+function bnconfig { #bn executes config operation to current server
+	
+	[[ -z "$1" ]] && heroku help config || heroku config$1 $2 -a "$CURRENT"
+}
+#---------------------------SQL---------------------------------------
+function sqlopen { #User opens MySQL server database in mycli
+	mycli -h $SQLHOST -P 3306 -u $SQLUSER -p $SQLPASSWD $SQLDBNAME
+}
+
+function sqlquery { #User executes sql query to database (query quoted)
+	mycli -e "$1" -h $SQLHOST -P 3306 -u $SQLUSER -p $SQLPASSWD $SQLDBNAME
+}
+function sqlServerTable { #User built-in query to get Server table
+	sqlquery "SELECT * FROM servers"
+}
+
+function bnsqlInfo { #bn gets current server status row in db
+	sqlServerTable | grep '$CURRENT'
+}
+function sqlserverCount { #User built-in query to get Server count in DB
+	sqlServerTable | wc -l
+}
+#---------------------------INFORMATION-FUNCTIONS-----------------------
+
+function version { #User prints current version
+	cat defaultVersion
+}
+function paperGit { #User prints git information of paper last build
+	
+	branch=$(version)
+	[[ ! -z "$1" ]] && branch="$1"
+	file=$(curl -s https://papermc.io/ci/job/$branch/changes)
+	version=$(echo "$file" | grep 'h2' | head -1 | cut -d '#' -f 2)
+	
+	log=$(echo "$file" | grep 'h2' | head -2)
+	log=${log##*li>}
+	log=${log%(<a*}
+	
+	commit=$(curl -s https://papermc.io/ci/job/$branch/$version/changes | grep '<pre>')
+	commit=${commit##*<pre>}
+	commit=${commit%(<a*}
+	commit=$(echo "$commit" | sed 's/<[^>]*>/\n/g')
+	
+	printf "Última version de ${GREEN}$branch${NC} es la ${GREEN}#$version${NC}, status de la build: ${GREEN}$(curl -s "https://papermc.io/ci/buildStatus/text?job=Paper-1.13")${NC} \n"
+	printf "Comentario del desarrolador: ${RED}$log${NC}\n"
+	echo ""
+	echo "$commit"
+}
+
+function forEachSlave { #User executes a task to each slave
+	for i in $SLAVES; do
+		$1 $2 $i
+	done
+}
+function printSlaves { #User prints slave list
+	echo "$SLAVES"
+}
+function setCurrentSlave { #User set current slave
+	CURRENT="$1"
+}
+
+#---------------------------SHELL-FUNCTIONS-----------------------------
+function printHead {
+	printf "${RED}(${GREEN}$CURRENT${RED})>${NC}"
+}
+function commands {
+	
+	cat $(basename "$0") | grep -v 'cat' | grep '#bn' | sed 's/function//g' | sed 's/{ #bn//g'
+	echo "----------------------------------------------------"
+	cat $(basename "$0") | grep -v 'cat' | grep '#User' | sed 's/function//g' | sed 's/{ #User//g'
+}
+
+function help { #User prints help 
+	echo "This is the bullnexmc administration command shell"
+	echo "These are the commands you can run in shell mode: "
+	echo ""
+	commands
+}
+
+
+function wrongCommand { 
+	echo "Wrong Command!"
+	help
+} 
+function shell {
+	clear
+	printHead
+	while read line
+	do
+		#found=$(commands | grep "$line")
+		#[[ ! -z "$found" ]] && { 
+			$line
+			printHead
+		#} || wrongCommand
+	done
+}
+
+[[ -z "$@" ]] && help || $@
