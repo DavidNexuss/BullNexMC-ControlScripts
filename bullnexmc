@@ -6,7 +6,7 @@ APPS=$(cat apps)
 MASTER="bullnexmc-lobby"
 CURRENT="bullnexmc"
 
-GREEN='\033[1;34m'
+GREEN='\033[1;32m'
 RED='\033[1;31m'
 NC='\033[0m'
 
@@ -21,6 +21,30 @@ PLUGIN="/home/david/Projects/BullNexMC-Plugin/"
 PLUGIN_FILE="$PLUGIN/target/BullNexMC-1.0.jar"
 DROPBOX_HOME="/home/david/Dropbox/"
 
+#---------------------------COMMAND-OVERRIDE--------------------------
+OVERRIDE=1
+
+function ls { lsd; }  
+function p_kill {
+	for i in $(jobs -p); do 
+		kill $i
+	done
+}
+function block { 
+	wait < <(jobs -p)
+}
+function p_block {
+	for i in $(jobs -p); do
+		wait $i || {
+			p_kill
+			exit 1
+		}
+	done
+}
+#---------------------------MISC--------------------------------------
+function echo_error {
+    printf "${RED}$1.${NC}\n"
+}
 function admin {
 	[[ "$USER" -eq "david" ]]
 }
@@ -31,49 +55,43 @@ function plugInstall { #User compile and deploy spigot plugin
 	admin && {
 		cd "$PLUGIN"
 		echo "Compiling plugin..."
-		mvn > stacktrace && {
+		mvn > stacktrace && ( 
 			echo "Copying jar..."
 			cd "$DIR"
 			cp $PLUGIN_FILE $DROPBOX_HOME
-			cp $PLUGIN_FILE defSlave/plugins/
-			echo "New version copied, no errors reported"
-		} || compileError
+			cp $PLUGIN_FILE plugins/
+			for i in $SLAVES; do {
+				7z a ~/Dropbox/Aplicaciones/$i/backup.zip plugins
+			} &
+			done
+			p_block || {
+				echo_error "There was an error archiving the plugin!"
+				exit 1
+			} && printf "${GREEN}--->New version copied, no errors reported.${NC}\n"
+		
+		) || compileError
 	} 
 }
 function user {
 	echo "$USER"
 }
-#---------------------------COMMAND-OVERRIDE--------------------------
-OVERRIDE=1
 
-function ls { lsd; }  
-function block {
-	for i in $(jobs -p); do
-		wait $i
-	done
-}
 #---------------------------HEROKU------------------------------------
 function stop { #bn Stops server cluster
-	for i in $APPS; do {
+    for i in $APPS; do {
 		heroku ps:scale web=0 -a $i
-	}&
+	} > /dev/null 2>&1 &
 	done
 	block
 	echo "All servers stopped"
 }
 function start { #bn Starts server cluster
-
+    (
+	printf "${GREEN}--->Initializing server cluster, starting procedure.\n"
 	printf "${GREEN}-->Phase 1: Checking...${NC}\n"
 	echo "->Checking dropbox backups..."
-	for i in $SLAVES; do {
-		backup_check $i || {
-			
-			printf "${RED}A server does not have dropbox backup! ${NC}\n"
-			exit 1
-		}
-	} &
-	done
-	block
+
+    backup_check_all || exit 1
 
 	printf "${GREEN}-->Phase 2: Initializing server...${NC}\n"
 	echo "->Deleting all databse server ip table..."
@@ -82,19 +100,24 @@ function start { #bn Starts server cluster
 	echo "->Starting server cluster..."
 	
 	for i in $SLAVES; do {
-		heroku ps:scale web=1 -a $i > /dev/null
-	} &
+		heroku ps:scale web=1 -a $i > /dev/null 2>&1
+		echo "->Started $i"
+	}&
 	done
 
 	echo "->Waiting for all servers to start..."
-	block
+	p_block
 	echo "->All servers started..."
 
-	echo "->Waiting for servers in server table..."
-
+	echo "->Waiting for servers in server table... $SLAVE_COUNT"
+	./DB_server_count
+	echo "->Servers ready."
+	./startproxy
+    
+) || exit 1; exit 0
 }
-function backup_check {
-	count=$(./backup_check list Aplicaciones/$1 | tail +2 | wc -l)
+function backup_check { #bn Checks backup of given server
+	count=$(./dropbox_uploader.sh list Aplicaciones/$1 | tail +2 | wc -l)
 
 	 if (($count < 1)); then
 		printf "${RED}$1 no tiene backup!${NC}\n"
@@ -103,8 +126,23 @@ function backup_check {
 		size=$(./dropbox_uploader.sh list Aplicaciones/$1 | tail -n +2 | awk '{print $2}')
 		size=$((size / 1024 / 1024))
 		
-		printf "$1 ${GREEN} $size MB ${NC}\n"
+		(($size == 0)) && {
+		
+			printf "${RED}backup size equals 0!${NC}\n"
+			exit 1
+		} || printf "$1 ${GREEN} $size MB ${NC}\n"
 	 fi
+}
+function backup_check_all { 
+    for i in $SLAVES; do {
+		(backup_check $i) || {
+			
+			printf "${RED}--->A server does not have dropbox backup! ${NC}\n"
+			exit 1
+		}
+	} &
+	done
+	p_block 
 }
 function status { #bn prints status of given server
 	[[ -z "$1" ]] && 1=$($CURRENT)
@@ -161,6 +199,9 @@ function bnsqlInfo { #bn gets current server status row in db
 function sqlserverCount { #User built-in query to get Server count in DB
 	sqlServerTable | wc -l
 }
+function playerlist { #User print player list and online status
+    sqlquery "SELECT playername,status FROM BungeeAuth"
+}
 #---------------------------INFORMATION-FUNCTIONS-----------------------
 
 function version { #User prints current version
@@ -200,7 +241,7 @@ function setCurrentSlave { #User set current slave
 	CURRENT="$1"
 }
 
-#---------------------------SHELL-FUNCTIONS-----------------------------
+#---------------------------PROMPT-FUNCTIONS-----------------------------
 function printHead {
 	printf "${RED}(${GREEN}$CURRENT${RED})>${NC}"
 }
