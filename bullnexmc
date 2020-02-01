@@ -70,7 +70,7 @@ function plugInstall { #User compile and deploy spigot plugin
 			} && printf "${GREEN}--->New version copied, no errors reported.${NC}\n"
 		
 		) || compileError
-	} 
+    } || printf"Only avaible for the server creator, needs dropbox access!"
 }
 function user {
 	echo "$USER"
@@ -190,7 +190,7 @@ function sqlquery { #User executes sql query to database (query quoted)
 	mycli -e "$1" -h $SQLHOST -P 3306 -u $SQLUSER -p $SQLPASSWD $SQLDBNAME
 }
 function sqlServerTable { #User built-in query to get Server table
-	sqlquery "SELECT * FROM servers"
+	sqlquery "SELECT * FROM servers" | column -t
 }
 
 function bnsqlInfo { #bn gets current server status row in db
